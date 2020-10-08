@@ -1,30 +1,31 @@
-#include<vector>
 #include <iostream>
 #include <stdlib.h>
-
 #include <thread>
-#include <ctime>
-
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
 #include <stdarg.h>
 #include <abt.h>
-// #include "abt.h"
-// #include "/Users/mt1ger/argobots-install/include/abt.h"
+
+#include "singleton.h"
+
 
 #define DEFAULT_NUM_XSTREAMS 2
+#define ll long long 
+
+// #define GLOBAL_VARIABLE
 
 using namespace std;
 
+
+#ifdef GLOBAL_VARIABLE
 /* Global Variable */
 ABT_xstream* xstreams;
 ABT_pool* pools;
 ABT_sched* scheds;
+ABT_thread_id Gtid = 0;
+#endif
 
-ABT_thread * Gthreads;
-
-long long tid_glob;
 int cnter=0;
 
 typedef struct {
@@ -33,35 +34,20 @@ typedef struct {
 } fibonacci_arg_t;
 
 
-typedef struct  
-{
-	// ABT_xstream * inClass_xstreams;
-	// ABT_sched* inClass_scheds;
-	ABT_pool * inClass_pools;
-	int tid;
-	int aaa;
-	int bbb;
-} arguments;
+#ifndef GLOBAL_VARIABLE
+Singleton * Singleton::singleton_ptr = nullptr;
+#endif
 
-
-void DoNothing()
-{
-
-}
-
-void blahblah (int tid)
-{
-	printf("the tid is %d", tid);
-}
 
 namespace argobots 
 {
+
+	#ifdef GLOBAL_VARIABLE
 	void mem_allocation (int num_xstreams) 
 	{
 		xstreams = (ABT_xstream *)malloc(sizeof(ABT_xstream) * num_xstreams);
 		pools = (ABT_pool *)malloc(sizeof(ABT_pool) * num_xstreams);
 		scheds = (ABT_sched *)malloc(sizeof(ABT_sched) * num_xstreams);
-		Gthreads = (ABT_thread *)malloc(sizeof(ABT_thread) * 100);
 	}
 
 	void pools_scheds_creation (int num_xstreams) 
@@ -98,7 +84,16 @@ namespace argobots
 		}
 	}
 
-	void finalize()
+	void join_free_xstream (int n)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			ABT_xstream_join (xstreams[i]);
+			ABT_xstream_free (&xstreams[i]);
+		}
+	}
+
+	void finalize ()
 	{
 		/* Finalize Argobots. */
 		ABT_finalize();
@@ -108,61 +103,68 @@ namespace argobots
 		free(pools);
 		free(scheds);
 	}
-
-
-
-
+	#endif
 
 	class thread
 	{
 		public:
-			long long tid;
-			int test;
 			ABT_thread ult;
 
-			/* default constructor */
-			thread () 
-			{
+			#ifndef GLOBAL_VARIABLE
+			Singleton* psingleton = Singleton::instance (10, 5, argv);
+			#endif
 
-			}
-			template <class funcType, class arguType>
-			thread(funcType func, arguType argu)
-			// thread(void (* func)(void*), void *argu)
+			/* default constructor */
+			thread () noexcept {}
+			/* constructor with parameters */
+			// template <class funcType, class... arguType>
+			// thread(funcType func, arguType... argu)
+			thread(void (* func)(void*), void *argu)
 			{
 				int rank;
 				int flag;
 
 				ABT_xstream_self_rank(&rank);
+
+				#ifdef GLOBAL_VARIABLE
 				ABT_pool target_pool = pools[rank];
+				#endif
+				#ifndef GLOBAL_VARIABLE
+				ABT_pool target_pool = psingleton->pools[rank]; 
+				#endif
+
 				flag = ABT_thread_create(target_pool, func, argu,
-						// ABT_THREAD_ATTR_NULL, &Gthreads[cnter]);
 						ABT_THREAD_ATTR_NULL, &ult);
 				if (flag == 0)
 					cnter++;
-				tid = tid_glob;
-				// printf("Thread %lld created, %d\n", tid_glob, flag);
-				tid_glob++;
+				#ifdef GLOBAL_VARIABLE
+				tid = Gtid;
+				Gtid++;
+				#endif
 			}
-			~thread()
+			thread (thread& other) 
 			{
-				
+				swap (other);
 			}
+			~thread() {}
 
-			void join () 
+			void join ()
 			{
 				ABT_thread_free (&ult);
-				tid_glob--;
+
+				#ifdef GLOBAL_VARIABLE
+				Gtid--;
+				#endif
 			}
 
-			long long get_id() 
+			ll get_id () const noexcept
 			{
 				return tid;
 			}
-
-			/* NOT finished */
-			thread (thread& other) 
+			
+			void swap(thread & other) 
 			{
-				this->ult = other.ult;
+				std::swap (this->tid, other.tid);
 			}
 
 
@@ -174,12 +176,10 @@ namespace argobots
 				return *this;
 			}
 
-			// thread& swap (thread& other) 
-			// {
-			// 	threadSwap((*this), other);
-			// }
-
 		private:
+			ABT_thread_id tid;
+			char** argv;
+
 	};
 
 };
@@ -237,12 +237,6 @@ void blah (void *argu)
 	printf("ret is %d\n", ((fibonacci_arg_t*)argu)->ret);
 }
 
-void blah (int * argu) 
-{
-
-	printf("argu is %d\n", *argu);
-
-}
 
 int main (int argc, char * argv[])
 {
@@ -271,6 +265,7 @@ int main (int argc, char * argv[])
 	}
 
 
+	#ifdef GLOBAL_VARIABLE
 	/* *Argobots Preparation* */
     /* Memory Allocation */ 
 	argobots::mem_allocation (num_xstreams);
@@ -287,8 +282,12 @@ int main (int argc, char * argv[])
 	/* Set up secondary execution stream */
 	argobots::secondary_xstreams (num_xstreams);
 	// cout << "xstreams and schedulers are created successfully." << endl;
+	#endif
 
-
+	#ifndef GLOBAL_VARIABLE
+    ABT_init(argc, argv);
+	Singleton * psingleton = Singleton::instance (num_xstreams, argc, argv); 
+	#endif
     
 	fibonacci_arg_t arg = {n, 0};
     fibonacci(&arg);
@@ -298,30 +297,11 @@ int main (int argc, char * argv[])
     int ans = fibonacci_seq(n);
 	cout << "The ret is " << ret << " the ans is " << ans << endl;
 
-	argobots::thread * threadArr;
-	threadArr = (argobots::thread*)malloc(n*sizeof(argobots::thread));
-	fibonacci_arg_t * args;
-	args = (fibonacci_arg_t*)malloc(n * sizeof (fibonacci_arg_t));
-	//
-	// argobots::thread threadArr[n];
-	// for (int i = 0; i < n; i++)
-	// {
-	// 	// args[i] = {i, 0};
-	// 	fibonacci_arg_t args = {i, 0}; 
-	// 	threadArr[i] = argobots::thread(blah, &args);
-	// 	threadArr[i].join();
-	// }
+	#ifdef GLOBAL_VARIABLE
+	argobots::join_free_xstream (num_xstreams);
+	argobots::finalize ();
+	#endif
 
-    for (int i = 1; i < num_xstreams; i++) 
-	{
-        ABT_xstream_join(xstreams[i]);
-        ABT_xstream_free(&xstreams[i]);
-    }
-	
-	free(xstreams);	
-	free(pools);	
-	free(scheds);	
-	ABT_finalize();
 	return 1;
 }
 
