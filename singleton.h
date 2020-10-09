@@ -15,19 +15,15 @@ class Singleton
 
 	// int * aaa;
 
-	Singleton(int num_xstreams_in, int argc, char** argv)
+	Singleton(int num_xstreams_in)
 	{
 		Gtid = 0;
 		num_xstreams = num_xstreams_in;
-	    // ABT_init(argc, argv);
+	    ABT_init(0, nullptr);
 		mem_allocation (num_xstreams);
-		cout << "after mem_allocation" << endl;
 		pools_scheds_creation ();
-		cout << "after pools_scheds_creation"<< endl;
 		main_xstream ();
-		cout << "after main_xstream"<< endl;
 		secondary_xstreams (num_xstreams);
-		cout << "after secondary_xstreams"<< endl;
 	}
 	~Singleton() 
 	{
@@ -44,6 +40,6 @@ class Singleton
 	void finalize ();
 
 	public:
-	static Singleton* instance (int num_xstreams_in, int argc, char** argv);
+	static Singleton* instance (int num_xstreams_in);
 	ABT_pool* pools; 
 };

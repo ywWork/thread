@@ -9,9 +9,7 @@
 
 #include "singleton.h"
 
-
 #define DEFAULT_NUM_XSTREAMS 2
-#define ll long long 
 
 // #define GLOBAL_VARIABLE
 
@@ -25,8 +23,6 @@ ABT_pool* pools;
 ABT_sched* scheds;
 ABT_thread_id Gtid = 0;
 #endif
-
-int cnter=0;
 
 typedef struct {
     int n;
@@ -111,7 +107,7 @@ namespace argobots
 			ABT_thread ult;
 
 			#ifndef GLOBAL_VARIABLE
-			Singleton* psingleton = Singleton::instance (10, 5, argv);
+			Singleton* psingleton = Singleton::instance (10);
 			#endif
 
 			/* default constructor */
@@ -135,8 +131,6 @@ namespace argobots
 
 				flag = ABT_thread_create(target_pool, func, argu,
 						ABT_THREAD_ATTR_NULL, &ult);
-				if (flag == 0)
-					cnter++;
 				#ifdef GLOBAL_VARIABLE
 				tid = Gtid;
 				Gtid++;
@@ -157,7 +151,7 @@ namespace argobots
 				#endif
 			}
 
-			ll get_id () const noexcept
+			ABT_thread_id get_id () const noexcept
 			{
 				return tid;
 			}
@@ -178,7 +172,6 @@ namespace argobots
 
 		private:
 			ABT_thread_id tid;
-			char** argv;
 
 	};
 
@@ -285,17 +278,14 @@ int main (int argc, char * argv[])
 	#endif
 
 	#ifndef GLOBAL_VARIABLE
-    ABT_init(argc, argv);
-	Singleton * psingleton = Singleton::instance (num_xstreams, argc, argv); 
+	Singleton * psingleton = Singleton::instance (num_xstreams); 
 	#endif
     
 	fibonacci_arg_t arg = {n, 0};
     fibonacci(&arg);
-	cout << "The counter is " << cnter << endl;
-	cout << "Finished fib computation." << endl;
     int ret = arg.ret;
     int ans = fibonacci_seq(n);
-	cout << "The ret is " << ret << " the ans is " << ans << endl;
+	cout << "Return value is " << ret << " the verification is " << ans << endl;
 
 	#ifdef GLOBAL_VARIABLE
 	argobots::join_free_xstream (num_xstreams);
