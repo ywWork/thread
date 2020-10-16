@@ -3,17 +3,34 @@
 
 #include<abt.h>
 #include<cstdlib>
+#include<iostream>
 
 #include "singleton.h"
 
 
-namespace argobots 
+namespace stdx 
 {
 
 	class thread
 	{
 		public:
-			ABT_thread ult;
+			class id 
+			{
+				ABT_thread ult;
+				public:
+				id () noexcept : ult (){}
+				id (ABT_thread other): ult(other) {}
+
+				private:
+					friend class thread;
+					friend bool operator== (thread::id id1, thread::id id2) noexcept;
+					friend bool operator< (thread::id id1, thread::id id2) noexcept;
+
+					friend 
+					ostream&
+					operator<< (ostream& __out, thread::id id1);
+			};
+		public:
 
 			Singleton* psingleton;
 
@@ -29,16 +46,24 @@ namespace argobots
 			~thread() {}
 
 			void join ();
-			ABT_thread_id get_id () const noexcept;
+			bool joinable ();
+			id get_id () const noexcept;
 			void swap(thread & other);
 
 			thread& operator=(thread&& other);
 
 		private:
 			ABT_thread_id tid;
-
+			id __id;
 	};
 
+	ostream& operator<<(ostream& __out, thread::id id2);
+	bool operator==(thread::id id1, thread::id id2) noexcept;
+	bool operator<(thread::id id1, thread::id id2) noexcept;
+	bool operator>(thread::id id1, thread::id id2) noexcept;
+	bool operator!=(thread::id id1, thread::id id2) noexcept;
+	bool operator>=(thread::id id1, thread::id id2) noexcept;
+	bool operator<=(thread::id id1, thread::id id2) noexcept;
 };
 #endif
 
