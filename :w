@@ -27,9 +27,8 @@ void
 stdx::thread::join ()
 {
 	if(__id != id())
-	{
 		ABT_thread_free (&__id.ult);
-	}
+	psingleton->Gtid--;
 	__id = id();
 }
 
@@ -49,7 +48,7 @@ stdx::thread::joinable ()
 void 
 stdx::thread::swap(thread & other) 
 {
-	std::swap (this->__id, other.__id);
+	std::swap (this->tid, other.tid);
 }
 
 stdx::thread& 
@@ -59,7 +58,7 @@ stdx::thread::operator=(thread&& other)
 	{
 		std::terminate();
 	}
-	this->swap(other);
+	swap(other);
 	return *this;
 }
 

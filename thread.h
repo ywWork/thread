@@ -4,6 +4,7 @@
 #include<abt.h>
 #include<cstdlib>
 #include<iostream>
+#include<algorithm>
 
 #include "singleton.h"
 
@@ -46,6 +47,7 @@ namespace stdx
 			~thread() {}
 
 			void join ();
+			void detach();
 			bool joinable ();
 			id get_id () const noexcept;
 			void swap(thread & other);
@@ -53,8 +55,8 @@ namespace stdx
 			thread& operator=(thread&& other);
 
 		private:
-			ABT_thread_id tid;
 			id __id;
+			ABT_thread_id tid;
 	};
 
 	ostream& operator<<(ostream& __out, thread::id id2);

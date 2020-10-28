@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <chrono>
+#include<thread>
 // #include<ostream>
 
 #include"thread.h"
@@ -57,6 +58,11 @@ int fibonacci_seq(int n)
 }
 
 
+void as (void * args) 
+{
+	((fibonacci_arg_t*)args)->n *= 3;
+}
+
 int main (int argc, char * argv[])
 {
 
@@ -92,20 +98,20 @@ int main (int argc, char * argv[])
 
 	chrono::steady_clock::time_point end = chrono::steady_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
-	stdx::thread t1;
-	// stdx::thread t3;
-	fibonacci_arg_t arg_temp = {3, 0};
-	stdx::thread t2 (fibonacci, &arg_temp);
-
-	// stdx::thread t1 (t2);
-	printf("the hex is 0x%X\n", (t1.get_id() > t2.get_id()));
-	cout << t1.get_id () << endl;
-	cout << t2.get_id() << endl;
-	cout << t1.joinable() << " aaaa " << t2.joinable() << endl;
-	t2.join();
-	cout << t1.joinable() << " aaaa " << t2.joinable() << endl;
-	// cout << t3.get_id() << endl;
 	cout << "Execution time: " << time_span.count() << endl;
+
+
+	fibonacci_arg_t arg_temp1 = {3,0};
+	stdx::thread tt;
+	cout << tt.get_id() << endl;
+	tt = stdx::thread (as, &arg_temp1);
+	cout << tt.get_id() << endl;
+	tt.join();
+	printf("the n is %d", arg_temp1.n);
+
+
+	
+	//
 
 	return 1;
 }
