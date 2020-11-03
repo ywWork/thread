@@ -7,7 +7,7 @@ stdx::thread::thread(void (* func)(void*), void *argu)
 
 	/* Initializing pools, schedulors and ESs in singleton class */
 	/* And offer a handler to reach the resources for this ULT */
-	psingleton = Singleton::instance();
+	psingleton = thread_Singleton::instance();
 
 	ABT_xstream_self_rank(&rank);
 	ABT_pool target_pool = psingleton->pools[rank]; 
