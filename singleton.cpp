@@ -2,25 +2,25 @@
 
 
 /* Global Initiation */
-Singleton* Singleton::singleton_ptr =nullptr;
+thread_Singleton* thread_Singleton::tsingleton_ptr =nullptr;
 
-Singleton * Singleton::instance () 
+thread_Singleton * thread_Singleton::instance () 
 {
-    if (singleton_ptr == nullptr)
+    if (tsingleton_ptr == nullptr)
     {
-        singleton_ptr = new Singleton();
+        tsingleton_ptr = new thread_Singleton();
     }
-    return singleton_ptr;
+    return tsingleton_ptr;
 }
 
-void Singleton::mem_allocation () 
+void thread_Singleton::mem_allocation () 
 {
 	xstreams = (ABT_xstream *)malloc(sizeof(ABT_xstream) * num_xstreams);
 	pools = (ABT_pool *)malloc(sizeof(ABT_pool) * num_xstreams);
 	scheds = (ABT_sched *)malloc(sizeof(ABT_sched) * num_xstreams);
 }
 
-void Singleton::pools_scheds_creation () 
+void thread_Singleton::pools_scheds_creation () 
 {
 	/* Create pools. */
 	for (int i = 0; i < num_xstreams; i++) {
@@ -41,13 +41,13 @@ void Singleton::pools_scheds_creation ()
 	}
 }
 
-void Singleton::main_xstream ()
+void thread_Singleton::main_xstream ()
 {
 	ABT_xstream_self(&xstreams[0]);
 	ABT_xstream_set_main_sched(xstreams[0], scheds[0]);
 }
 
-void Singleton::secondary_xstreams () 
+void thread_Singleton::secondary_xstreams () 
 {
 	for (int i = 1; i < num_xstreams; i++)
 	{
@@ -55,7 +55,7 @@ void Singleton::secondary_xstreams ()
 	}
 }
 
-void Singleton::join_free_xstream ()
+void thread_Singleton::join_free_xstream ()
 {
 	for (int i = 0; i < num_xstreams; i++)
 	{
@@ -64,7 +64,7 @@ void Singleton::join_free_xstream ()
 	}
 }
 
-void Singleton::finalize ()
+void thread_Singleton::finalize ()
 {
 	/* Finalize Argobots. */
 	ABT_finalize();

@@ -15,7 +15,7 @@ typedef struct {
     int ret;
 } fibonacci_arg_t;
 
-// Singleton * Singleton::singleton_ptr = nullptr;
+// thread_Singleton * thread_Singleton::tsingleton_ptr = nullptr;
 
 void fibonacci(void *arg)
 {
@@ -99,19 +99,6 @@ int main (int argc, char * argv[])
 	chrono::steady_clock::time_point end = chrono::steady_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
 	cout << "Execution time: " << time_span.count() << endl;
-
-
-	fibonacci_arg_t arg_temp1 = {3,0};
-	stdx::thread tt;
-	cout << tt.get_id() << endl;
-	tt = stdx::thread (as, &arg_temp1);
-	cout << tt.get_id() << endl;
-	tt.join();
-	printf("the n is %d", arg_temp1.n);
-
-
-	
-	//
 
 	return 1;
 }

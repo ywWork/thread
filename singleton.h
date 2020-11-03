@@ -7,15 +7,15 @@
 
 using namespace std;
 
-class Singleton 
+class thread_Singleton 
 {
 
 	int num_xstreams = 0;	
-	static Singleton * singleton_ptr;
+	static thread_Singleton * tsingleton_ptr;
 	ABT_xstream * xstreams;
 	ABT_sched* scheds; 
 
-	Singleton()
+	thread_Singleton()
 	{
 		Gtid = 0;
 		num_xstreams = atoi(getenv("NUM_ES"));
@@ -36,7 +36,7 @@ class Singleton
 
 
 	public:
-	static Singleton* instance ();
+	static thread_Singleton* instance ();
 	ABT_pool* pools; 
 	ABT_thread_id Gtid;
 };

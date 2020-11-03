@@ -33,7 +33,7 @@ namespace stdx
 			};
 		public:
 
-			Singleton* psingleton;
+			thread_Singleton* psingleton;
 
 			/* default constructor */
 			thread () noexcept {}
