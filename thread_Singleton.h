@@ -26,6 +26,11 @@ class thread_Singleton
 		secondary_xstreams ();
 	}
 
+	~thread_Singleton()
+	{
+		join_free_xstream();
+		finalize();
+	}
 
 	void mem_allocation (); 
 	void pools_scheds_creation ();
