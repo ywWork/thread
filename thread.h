@@ -6,7 +6,7 @@
 #include<iostream>
 #include<algorithm>
 
-#include "singleton.h"
+#include "thread_Singleton.h"
 
 
 namespace stdx 

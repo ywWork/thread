@@ -1,4 +1,4 @@
-#include"singleton.h"
+#include"thread_Singleton.h"
 
 
 /* Global Initiation */
