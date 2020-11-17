@@ -1,27 +1,35 @@
+#ifndef _THREAD_CPP 
+#define _THREAD_CPP 
+
 #include "thread.h"
 
-stdx::thread::thread(void (* func)(void*), void *argu)
-{
-	int rank;
-	int flag;
+// template<class Fn, class ...Args>
+// stdx::thread::thread(Fn func, Args ...args)
+// // template<class ret, class arg>
+// // stdx::thread::thread(ret(*func)(arg), void *args)
+//
+// {
+// 	int rank;
+// 	int flag;
+//
+// 	#<{(| Initializing pools, schedulors and ESs in singleton class |)}>#
+// 	#<{(| And offer a handler to reach the resources for this ULT |)}>#
+// 	psingleton = thread_Singleton::instance();
+//
+// 	ABT_xstream_self_rank(&rank);
+// 	ABT_pool target_pool = psingleton->pools[rank]; 
+// 	flag = ABT_thread_create(target_pool, func, args...,
+// 	// flag = ABT_thread_create(target_pool, func, args,
+// 			ABT_THREAD_ATTR_NULL, &__id.ult);
+// 	tid = psingleton->Gtid;
+// 	psingleton->Gtid++;
+// }
 
-	/* Initializing pools, schedulors and ESs in singleton class */
-	/* And offer a handler to reach the resources for this ULT */
-	psingleton = thread_Singleton::instance();
-
-	ABT_xstream_self_rank(&rank);
-	ABT_pool target_pool = psingleton->pools[rank]; 
-	flag = ABT_thread_create(target_pool, func, argu,
-			ABT_THREAD_ATTR_NULL, &__id.ult);
-	tid = psingleton->Gtid;
-	psingleton->Gtid++;
-}
 
 stdx::thread::thread (thread&& other) 
 {
 	swap (other);
 }
-
 
 void 
 stdx::thread::join ()
@@ -70,7 +78,6 @@ noexcept
 	return id1.ult == id2.ult;	
 }
 
-
 ostream&
 stdx::operator<< (ostream& __out, stdx::thread::id id1)
 {
@@ -79,6 +86,7 @@ stdx::operator<< (ostream& __out, stdx::thread::id id1)
 	else
 		return __out << id1.ult;
 }
+
 bool
 stdx::operator!=(stdx::thread::id id1, stdx::thread::id id2)
 noexcept
@@ -99,3 +107,14 @@ bool
 stdx::operator>=(stdx::thread::id id1, stdx::thread::id id2)
 noexcept
 { return !(id1 < id2);}
+
+
+void stdx::thread_d::wait () 
+{
+	ABT_eventual_wait(eventual, nullptr);
+}
+#endif
+
+
+
+

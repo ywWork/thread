@@ -40,6 +40,29 @@ void fibonacci(void *arg)
     }
 }
 
+void fibonacci_d(void *arg)
+{
+    int n = ((fibonacci_arg_t *)arg)->n;
+    int *p_ret = &((fibonacci_arg_t *)arg)->ret;
+
+    if (n <= 1) {
+        *p_ret = 1;
+    } 
+	else {
+        fibonacci_arg_t child1_arg = {n - 1, 0};
+        fibonacci_arg_t child2_arg = {n - 2, 0};
+
+		stdx::thread_d threads (fibonacci, &child1_arg);
+
+        /* Calculate fib(n - 2).  We do not create another ULT. */
+        fibonacci(&child2_arg);
+
+		threads.wait();
+
+        *p_ret = child1_arg.ret + child2_arg.ret;
+    }
+}
+
 int fibonacci_seq(int n)
 {
     if (n <= 1) {
@@ -62,6 +85,7 @@ void as (void * args)
 {
 	((fibonacci_arg_t*)args)->n *= 3;
 }
+
 
 int main (int argc, char * argv[])
 {
@@ -99,6 +123,21 @@ int main (int argc, char * argv[])
 	chrono::steady_clock::time_point end = chrono::steady_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
 	cout << "Execution time: " << time_span.count() << endl;
+
+
+
+	start = chrono::steady_clock::now();
+
+	fibonacci_arg_t arg_d = {n, 0};
+    fibonacci(&arg_d);
+    int ret_d = arg_d.ret;
+    int ans_d = fibonacci_seq(n);
+	cout << "The returned value is " << ret_d << "; The verification is " << ans_d << endl;
+
+	end = chrono::steady_clock::now();
+	time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
+	cout << "Execution time: " << time_span.count() << endl;
+
 
 	return 1;
 }
