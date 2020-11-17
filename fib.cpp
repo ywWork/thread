@@ -63,6 +63,14 @@ void as (void * args)
 	((fibonacci_arg_t*)args)->n *= 3;
 }
 
+template<class Fn, class ...Args>
+struct t_wrapper_args_ 
+{
+	Fn func;
+	std::tuple<Args...> tuple_;
+	ABT_eventual* ev_ptr;
+};
+
 int main (int argc, char * argv[])
 {
 
@@ -99,6 +107,29 @@ int main (int argc, char * argv[])
 	chrono::steady_clock::time_point end = chrono::steady_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
 	cout << "Execution time: " << time_span.count() << endl;
+
+
+        // fibonacci_arg_t child2_arg = {10, 0};
+		// ABT_eventual ev;	
+		// t_wrapper_args_<decltype(&fibonacci), decltype(&child2_arg)> twa;
+		// twa.func = fibonacci;
+		// twa.tuple_ = std::make_tuple (&child2_arg);
+		// twa.ev_ptr = &ev;
+		// stdx::thread_d threads (fibonacci, &child2_arg);
+		// stdx::t_wrapper<decltype(&fibonacci), decltype(&child2_arg)> (&twa);
+		// threads.wait();
+		// cout << child2_arg.ret << endl;
+		
+		// void (*func1)(void *);
+		// void (*func2)(void *);
+		// func2 = &fibonacci;
+		// cout << is_same<decltype(func1), decltype(&fibonacci)>::value << endl;
+		// cout << is_same<decltype(func1), decltype(func2)>::value << endl;
+		// fibonacci(&child2_arg);
+		// cout << child2_arg.ret  << endl;
+        // child2_arg = {10, 0};
+		// func2(&child2_arg);
+		// cout << child2_arg.ret  << endl;
 
 	return 1;
 }
