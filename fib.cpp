@@ -15,8 +15,6 @@ typedef struct {
     int ret;
 } fibonacci_arg_t;
 
-// thread_Singleton * thread_Singleton::tsingleton_ptr = nullptr;
-
 void fibonacci(void *arg)
 {
     int n = ((fibonacci_arg_t *)arg)->n;
@@ -63,6 +61,11 @@ void as (void * args)
 	((fibonacci_arg_t*)args)->n *= 3;
 }
 
+double test (int a, double b)  
+{
+	return a + b;
+}
+
 template<class Fn, class ...Args>
 struct t_wrapper_args_ 
 {
@@ -99,9 +102,13 @@ int main (int argc, char * argv[])
 	chrono::steady_clock::time_point start = chrono::steady_clock::now();
 
 	fibonacci_arg_t arg = {n, 0};
-    fibonacci(&arg);
+    // fibonacci(&arg);
+	stdx::thread t1 (as, &arg);
+	t1.join ();
     int ret = arg.ret;
+	int n__ = arg.n;
     int ans = fibonacci_seq(n);
+	cout << "The n is " << n__ << endl;
 	cout << "The returned value is " << ret << "; The verification is " << ans << endl;
 
 	chrono::steady_clock::time_point end = chrono::steady_clock::now();

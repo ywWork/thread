@@ -4,7 +4,7 @@
 #include"thread_Singleton.h"
 
 /* Global Initiation */
-thread_Singleton* thread_Singleton::tsingleton_ptr =nullptr;
+thread_Singleton* thread_Singleton::tsingleton_ptr = nullptr;
 
 thread_Singleton * thread_Singleton::instance () 
 {

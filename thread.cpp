@@ -111,10 +111,10 @@ noexcept
 #endif
 
 
-void stdx::thread_d::wait () 
-{
-	ABT_eventual_wait(eventual, nullptr);
-}
+// void stdx::thread_d::wait () 
+// {
+// 	ABT_eventual_wait(eventual, nullptr);
+// }
 
 
 #endif
