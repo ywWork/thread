@@ -25,7 +25,7 @@ typedef struct {
     int ret;
 } fibonacci_arg_t;
 
-// thread_Singleton * thread_Singleton::tsingleton_ptr = nullptr;
+std::mutex mtx_global;
 
 #ifdef THREAD
 void fibonacci_thread(void *arg)
@@ -160,10 +160,20 @@ class Half
 		}
 };
 
-int half (int x)  
+
+double test (int a, double b)  
 {
-	return x /2;
+	cout << "a + b " << a + b << endl;
+	return a + b;
 }
+
+template<class Fn, class ...Args>
+struct t_wrapper_args_ 
+{
+	Fn func;
+	std::tuple<Args...> tuple_;
+	ABT_eventual* ev_ptr;
+};
 
 int main (int argc, char * argv[])
 {

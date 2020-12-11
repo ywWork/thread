@@ -1,8 +1,10 @@
+#ifndef _THREAD_SINGLETON_CPP
+#define _THREAD_SINGLETON_CPP
+
 #include"thread_Singleton.h"
 
-
 /* Global Initiation */
-thread_Singleton* thread_Singleton::tsingleton_ptr =nullptr;
+thread_Singleton* thread_Singleton::tsingleton_ptr = nullptr;
 
 thread_Singleton * thread_Singleton::instance () 
 {
@@ -75,3 +77,4 @@ void thread_Singleton::finalize ()
 	free(scheds);
 }
 
+#endif

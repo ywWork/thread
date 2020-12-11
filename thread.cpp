@@ -3,6 +3,7 @@
 
 #include "thread.h"
 
+#ifndef THREAD_DETACH
 stdx::thread::thread (thread&& other) 
 {
 	swap (other);
@@ -90,6 +91,7 @@ void stdx::thread_d::wait ()
 {
 	ABT_eventual_wait(eventual, nullptr);
 }
+
 #endif
 
 
