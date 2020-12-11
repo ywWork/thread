@@ -3,7 +3,6 @@
 
 #include "thread.h"
 
-#ifndef THREAD_DETACH
 stdx::thread::thread (thread&& other) 
 {
 	swap (other);
@@ -93,7 +92,3 @@ void stdx::thread_d::wait ()
 }
 
 #endif
-
-
-
-

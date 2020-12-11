@@ -9,9 +9,9 @@
 
 #include"thread.h"
 
-#define THREAD
+// #define THREAD
 // #define XTHREAD
-// #define XTHREAD_D
+#define XTHREAD_D
 // #define RAW_ABT_THREAD
 
 using namespace std;
@@ -156,6 +156,7 @@ class Half
 
 		int operator() (int x) 
 		{
+			cout << x /2 << endl;
 			return x/ 2;
 		}
 };
@@ -167,13 +168,6 @@ double test (int a, double b)
 	return a + b;
 }
 
-template<class Fn, class ...Args>
-struct t_wrapper_args_ 
-{
-	Fn func;
-	std::tuple<Args...> tuple_;
-	ABT_eventual* ev_ptr;
-};
 
 int main (int argc, char * argv[])
 {
@@ -253,32 +247,29 @@ int main (int argc, char * argv[])
 	fibonacci_arg_t arg;
 	chrono::steady_clock::time_point start = chrono::steady_clock::now();
 
-	for (int i = 0; i < 100; i++) 
-	{
+	// for (int i = 0; i < 100; i++) 
+	// {
 		arg = {n, 0};
 		/* raw ABT_thread */
 		#ifdef RAW_ABT_THREAD
 		fibonacci_raw(&arg);
-		int ret = arg.ret;
 		#endif
 
 		/* For normal thread */
 		#ifdef THREAD
 		fibonacci_thread(&arg);
-		int ret = arg.ret;
 		#endif
 
 		/* For normal xthread */
 		#ifdef XTHREAD
 		fibonacci_xthread(&arg);
-		int ret = arg.ret;
 		#endif
 
 		/* For anounymous xthread */
 		#ifdef XTHREAD_D
 		fibonacci_xthread_d(&arg);
 		#endif
-	}
+	// }
 
 	chrono::steady_clock::time_point end = chrono::steady_clock::now();
 	chrono::duration<double> time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
@@ -312,14 +303,7 @@ int main (int argc, char * argv[])
     // int ans_d = fibonacci_seq(n);
 	// cout << "The returned value is " << ret_d << "; The verification is " << ans_d << endl;
 
-	Half h1;	
 	
-	std::function<int(int)> f1 = h1;
-	cout << f1(50) << endl;
-	stdx::thread t1 (&f1, 50);
-	t1.join();
-
-
 	// end = chrono::steady_clock::now();
 	// time_span = chrono::duration_cast<chrono::duration<double> >(end-start);
 	// cout << "Execution time: " << time_span.count() << endl;
