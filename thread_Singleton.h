@@ -3,6 +3,7 @@
 
 #include<cstdlib>
 #include<iostream>
+#include<mutex>
 #include<abt.h>
 
 using namespace std;
@@ -44,5 +45,7 @@ class thread_Singleton
 	static thread_Singleton* instance ();
 	ABT_pool* pools; 
 	ABT_thread_id Gtid;
+	mutex mtx;
+
 };
 #endif

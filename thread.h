@@ -7,6 +7,8 @@
 #include<iostream>
 #include<algorithm>
 #include<tuple>
+#include<vector>
+#include<mutex>
 #include"thread_Singleton.h"
 
 
@@ -71,7 +73,7 @@ namespace stdx
 	// };
 
 	template<class Ret, class ...Args> 
-	inline void xthread_wrapper (void * ptr) 
+	void xthread_wrapper (void * ptr) 
 	{
 		stdx::xthread_wrapper_args_t<Ret, Args...>* xwa_ptr = (stdx::xthread_wrapper_args_t<Ret, Args...>*) ptr;
 		std::apply(xwa_ptr->func_, xwa_ptr->tuple_);
@@ -111,18 +113,18 @@ namespace stdx
 				int flag;
 			
 				psingleton = thread_Singleton::instance();
+
 				typedef typename std::result_of<decltype(func_in)&(Args...)>::type mytype_; 
-
-				wrapper_args_<mytype_, Args...>.func_ = func_in;
-				wrapper_args_<mytype_, Args...>.tuple_ = std::make_tuple(args...);
-
-				std::apply(wrapper_args_<mytype_, Args...>.func_, wrapper_args_<mytype_, Args...>.tuple_);
-				// ABT_xstream_self_rank(&rank);
-				// ABT_pool target_pool = psingleton->pools[rank]; 
-				// // flag = ABT_thread_create(target_pool, xthread_wrapper<mytype_, Args...>, nullptr,
-				// flag = ABT_thread_create(target_pool, xthread_wrapper<mytype_, Args...>, &wrapper_args_<mytype_, Args...>,
-				// 		ABT_THREAD_ATTR_NULL, &__id.ult);
-				psingleton->Gtid++;
+				xthread_wrapper_args_t<mytype_, Args...> * xwargs_ptr;
+				xwargs_ptr = new xthread_wrapper_args_t<mytype_, Args...>;
+				xwargs_ptr->func_ = func_in;
+				xwargs_ptr->tuple_ = std::make_tuple(args...);
+				ptr_= xwargs_ptr;
+				ABT_xstream_self_rank(&rank);
+				ABT_pool target_pool = psingleton->pools[rank]; 
+				// xthread_wrapper<mytype_, Args...> (&())
+				flag = ABT_thread_create(target_pool, xthread_wrapper<mytype_, Args...>, xwargs_ptr,
+						ABT_THREAD_ATTR_NULL, &__id.ult);
 			}
 
 			thread (thread&& other);
@@ -130,7 +132,10 @@ namespace stdx
 			thread (const thread&) = delete;
 			thread (const thread&&) = delete;
 
-			~thread() {}
+			~thread() 
+			{
+				free(ptr_); 
+			}
 
 			void join ();
 			void detach();
@@ -142,15 +147,7 @@ namespace stdx
 
 		private:
 			id __id;
-
-			template<class Ret, class ...Args>
-			static inline xthread_wrapper_args_t<Ret, Args...> wrapper_args_ = {};
-			// template<class Ret, class ...Args> 
-			// inline void xthread_wrapper (void * ptr) 
-			// {
-			// 	
-			// 	std::apply(wrapper_args_<Ret, Args...>.func_, wrapper_args_<Ret, Args...>.tuple_);
-			// }
+			void* ptr_;
 	};
 
 	ostream& operator<<(ostream& __out, thread::id id2);

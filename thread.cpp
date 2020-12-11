@@ -3,29 +3,6 @@
 
 #include "thread.h"
 
-// template<class Fn, class ...Args>
-// stdx::thread::thread(Fn func, Args ...args)
-// // template<class ret, class arg>
-// // stdx::thread::thread(ret(*func)(arg), void *args)
-//
-// {
-// 	int rank;
-// 	int flag;
-//
-// 	#<{(| Initializing pools, schedulors and ESs in singleton class |)}>#
-// 	#<{(| And offer a handler to reach the resources for this ULT |)}>#
-// 	psingleton = thread_Singleton::instance();
-//
-// 	ABT_xstream_self_rank(&rank);
-// 	ABT_pool target_pool = psingleton->pools[rank]; 
-// 	flag = ABT_thread_create(target_pool, func, args...,
-// 	// flag = ABT_thread_create(target_pool, func, args,
-// 			ABT_THREAD_ATTR_NULL, &__id.ult);
-// 	tid = psingleton->Gtid;
-// 	psingleton->Gtid++;
-// }
-
-
 #ifndef THREAD_DETACH
 stdx::thread::thread (thread&& other) 
 {
